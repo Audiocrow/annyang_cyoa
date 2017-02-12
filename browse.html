@@ -1,5 +1,17 @@
 <html>
 <head>
+<style>
+	body {
+		background-color:black;
+		color:white;
+	};
+	button.adventure {
+		text-align:center;
+		margins:auto;
+		border-style:solid;
+		border-width:5px;
+	};
+</style>
 <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 <script src="scripts/jquery-3.1.1.min.js"></script>
 <script>
@@ -14,8 +26,12 @@
 	firebase.initializeApp(config);
 	var database = firebase.database();
 	$(document).ready(function() {
+		var index=0;
 		database.ref("storyboards/").orderByKey().on("child_added", function(data) {
-			$("#adventures").append("<p class=\"adventure\">" + data.key + "</p>");
+			$("#adventures").append("<button class=\"adventure\">" + data.key + "</button><br>");
+		});
+		$(document).on('click', '.adventure', function() {
+			window.location = "../play.html?key=" + $(this).text();
 		});
 	});
 </script>

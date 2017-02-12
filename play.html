@@ -17,60 +17,91 @@
 	<div class="options"></div>
 </div>	
 <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
-<script>
-  // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyBmc07CCwgFD8yE-JHHBz5Ve7RTxDMftE0",
-    authDomain: "annyangcyoa.firebaseapp.com",
-    databaseURL: "https://annyangcyoa.firebaseio.com",
-    storageBucket: "annyangcyoa.appspot.com",
-    messagingSenderId: "468828627566"
-  };
-  firebase.initializeApp(config);
-</script>
 <script src="scripts/speakClient.js"></script>
 <script src="scripts/annyang.min.js"></script>
 <script>
-	/*var CYOA_DB = TAFFY([
-		{ "page":0, "story":"You are lost in the woods. Would you like to go left down a path, or go right down another path?", "option":"left/right", "go":"3/1" },
-		{ "page":1, "story":"You are lost in the woods. Would you like to go left off the path, or go down a nearby hole?", "option":"left/down/hole", "go":"0/2/2" },
-		{ "page":2, "story":"You are stuck in a hole. Would you like to climb out, or would you like to cry me a river?", "option":"climb/up/out/cry/river", "go":"1/1/1/4/4" },
-		{ "page":3, "story":"You are lost in the woods. Would you like to go forward, or would you like to go backward?", "option":"forward/backward", "go":"1/0" },
-		{ "page":4, "story":"You drown to death in the hole you just filled with tears. Would you like to retry, or quit?", "option":"retry", "go":"1" },
-	]);*/
-	var currentPage = 0;
-	var currentStory;
-	var readStory = function() {
-		currentStory = CYOA_DB({page:currentPage}).select("story")[0];
-		document.getElementById("story").innerHTML = currentStory;
-		speak(currentStory);
+	var config = {
+    	apiKey: "AIzaSyBmc07CCwgFD8yE-JHHBz5Ve7RTxDMftE0",
+    	authDomain: "annyangcyoa.firebaseapp.com",
+    	databaseURL: "https://annyangcyoa.firebaseio.com",
+    	storageBucket: "annyangcyoa.appspot.com",
+    	messagingSenderId: "468828627566"
 	};
-	readStory();
-	//annyang.addCallback('end', readStory);
-	annyang.addCallback('result', function(phrases) {
-		if(phrases[0] == 'quit') { annyang.abort(); return; }
-		var options = CYOA_DB({page:currentPage}).select("option")[0].split("/");
-		var foundMatch = false;
-		for(phrase=0; phrase<phrases.length; phrase++) {
-			for(i=0; i<options.length; i++) {
-				console.log("Comparing '" + phrases[phrase] + "' to '" + options[i] + "'...");
-				if(phrases[phrase].search(options[i]) >= 0) {
-					foundMatch = true;
-					var goOpts = CYOA_DB({page:currentPage}).select("go")[0];
-					nextPage=(goOpts.split("/"))[i];
-					currentPage=parseInt(nextPage);
-					readStory();
-					//speak("An option has been matched");
-					break;
-				}
-			}
-			if(foundMatch) { break; }
+	firebase.initializeApp(config);
+	var database = firebase.database();
+	var title=undefined;
+	var args = window.location.search.substring(1).split("&");
+	for(i=0; i<args.length; i++) {
+		var pair = args[i].split("=");
+		if(pair[0] == "key") {
+			title=pair[1];
+			break;
 		}
-		if(!foundMatch) { speak("Could you repeat that?"); }
-		//document.getElementByClass("options")
-	});	
-	//annyang.addCommands(commands);
-	annyang.start();
+	}
+	if(title != undefined) {
+		title=title.replace(/%20/g, " ");
+		console.log(title);
+		/*var CYOA_DB = TAFFY([
+			{ "page":0, "story":"You are lost in the woods. Would you like to go left down a path, or go right down another path?", "option":"left/right", "go":"3/1" },
+			{ "page":1, "story":"You are lost in the woods. Would you like to go left off the path, or go down a nearby hole?", "option":"left/down/hole", "go":"0/2/2" },
+			{ "page":2, "story":"You are stuck in a hole. Would you like to climb out, or would you like to cry me a river?", "option":"climb/up/out/cry/river", "go":"1/1/1/4/4" },
+			{ "page":3, "story":"You are lost in the woods. Would you like to go forward, or would you like to go backward?", "option":"forward/backward", "go":"1/0" },
+			{ "page":4, "story":"You drown to death in the hole you just filled with tears. Would you like to retry, or quit?", "option":"retry", "go":"1" },
+		]);*/
+		decodeURI(title);
+		var allPages = database.ref("storyboards/").child(title);
+		//console.log("" + allPages.ref);
+		var currentPage = 0;
+		var currentOpts;
+		//var currentStory;
+		var readStory = function() {
+			//currentStory = CYOA_DB({page:currentPage}).select("story")[0];
+			var pageQuery = allPages.child("page" + currentPage);
+			allPages.child("page" + currentPage).on("child_added", function(data) {
+				if(data.key == "storyfield") {
+					var currentStory = data.val();
+					document.getElementById("story").innerHTML = currentStory;
+					speak(currentStory);
+				}
+				else if(data.key == "optsfield") {
+					currentOpts = data.val();
+					annyang.resume();
+					if(!annyang.isListening()) { annyang.start(); }
+				}
+			});
+		};
+		readStory();
+		//annyang.addCallback('end', readStory);
+		annyang.addCallback('result', function(phrases) {
+			if(phrases[0] == 'quit' || phrases[0] == 'exit') {
+				annyang.abort();
+				window.location="../index.html";
+			}
+			//var options = CYOA_DB({page:currentPage}).select("option")[0].split("/");
+			var foundMatch = false;
+			var optPairs = currentOpts.split("/");
+			for(phrase=0; phrase<phrases.length; phrase++) {
+				for(i=0; i<optPairs.length; i++) {
+					//console.log("Comparing '" + phrases[phrase] + "' to '" + options[i] + "'...");
+					var pair = optPairs[i].split(":");
+					console.log("Comparing '" + phrases[phrase] + "' to '" + pair[0] + "'...");
+					if(phrases[phrase].search(pair[0]) >= 0) {
+						foundMatch = true;
+						//var goOpts = CYOA_DB({page:currentPage}).select("go")[0];
+						nextPage=pair[1];
+						currentPage=parseInt(nextPage);
+						readStory();
+						//speak("An option has been matched");
+						break;
+					}
+				}
+				if(foundMatch) { break; }
+			}
+			if(!foundMatch) { speak("Could you repeat that?"); }
+			//document.getElementByClass("options")
+		});	
+		//annyang.addCommands(commands);
+	}
 </script>
 </body>
 </head>

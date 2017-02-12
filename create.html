@@ -10,7 +10,7 @@
 	<br>
 	<div id="pg0" class="page" style="display:inline-block;";>
 		<textarea rows="4" cols="25" class="storyfield" placeholder="This page's story goes here."></textarea>
-		<textarea rows="4" cols="15" class="optsfield" placeholder="Paths for the player, separated by / (ex:'left/right')."></textarea> 
+		<textarea rows="4" cols="25" class="optsfield" placeholder="Paths for the player as phrase:page# pairs, separated by / (ex:'left:3/right:5')."></textarea> 
 		<button id="plus">+</button>
 	</div>
 	<br>
@@ -36,7 +36,7 @@
 			numPages++;
 			var pgid = "#pg" + (numPages-1);
 			var newPgid = "pg" + (numPages);
-			$(pgid).append("<br><u>Page " + numPages + "</u><br><div id=" + newPgid + " class=\"page\"><textarea rows=\"4\" cols=\"25\" class=\"storyfield\" placeholder=\"Type this page's story here.\"></textarea><textarea rows=\"4\" cols=\"15\" class=\"optsfield\" placeholder=\"Paths for the player, separated by / (ex:'left/right').\"></textarea></div>");
+			$(pgid).append("<br><u>Page " + numPages + "</u><br><div id=" + newPgid + " class=\"page\"><textarea rows=\"4\" cols=\"25\" class=\"storyfield\" placeholder=\"Type this page's story here.\"></textarea><textarea rows=\"4\" cols=\"25\" class=\"optsfield\" placeholder=\"Paths for the player as phrase:page# pairs, separated by / (ex:'left:3/right:5').\"></textarea></div>");
 		});
 		$("#submit").click(function() {
 			$(".storyfield").each(function(index) {
