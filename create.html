@@ -3,15 +3,26 @@
 <head>
 	<meta charset="utf-8">
 </head>
+<style>
+	body {
+		margin: 1px 2px 1px 2px;
+		padding: 0px 20px 0px 0px;
+	}
+	input {
+		margin: 2px auto 2px auto;
+	}
+</style>
 <body>
 	<input id="advtitle" type="text" value="The title of this adventure"></input>
 	<br>
-	<u>Page 0</u>
+	<input id="author" type="text" value="Your name"></input>
+	<br><br>
+	<u><b>Page 0</b></u>
 	<br>
 	<div id="pg0" class="page" style="display:inline-block;";>
 		<textarea rows="4" cols="25" class="storyfield" placeholder="This page's story goes here."></textarea>
 		<textarea rows="4" cols="25" class="optsfield" placeholder="Paths for the player as phrase:page# pairs, separated by / (ex:'left:3/right:5')."></textarea> 
-		<button id="plus">+</button>
+		<button id="plus" style="vertical-align:top;">+</button><button id="minus" style="vertical-align:top;">-</button>
 	</div>
 	<br>
 	<button id="submit">Submit!</button>
@@ -36,13 +47,22 @@
 			numPages++;
 			var pgid = "#pg" + (numPages-1);
 			var newPgid = "pg" + (numPages);
-			$(pgid).append("<br><u>Page " + numPages + "</u><br><div id=" + newPgid + " class=\"page\"><textarea rows=\"4\" cols=\"25\" class=\"storyfield\" placeholder=\"Type this page's story here.\"></textarea><textarea rows=\"4\" cols=\"25\" class=\"optsfield\" placeholder=\"Paths for the player as phrase:page# pairs, separated by / (ex:'left:3/right:5').\"></textarea></div>");
+			var holder="container" + (numPages);
+			$(pgid).append("<div id=" + holder + "><br><u><b>Page " + numPages + "</b></u><br><div id=" + newPgid + " class=\"page\"><textarea rows=\"4\" cols=\"25\" class=\"storyfield\" placeholder=\"Type this page's story here.\"></textarea><textarea rows=\"4\" cols=\"25\" class=\"optsfield\" placeholder=\"Paths for the player as phrase:page# pairs, separated by / (ex:'left:3/right:5').\"></textarea></div></div>");
+		});
+		$("#minus").click(function() {
+			if(numPages > 0) {
+				var target = "#container" + (numPages);
+				$(target).remove();
+				numPages--;
+			}
 		});
 		$("#submit").click(function() {
 			$(".storyfield").each(function(index) {
 				console.log(this.value + ":" + $(".optsfield").get(index).value);
 				var stuff = database.ref().child("storyboards");
 				stuff.push().key;
+				stuff.child($("#author").get(0).value).push().key;
 				var moreStuff = stuff.child($("#advtitle").get(0).value);
 				moreStuff.push().key;
 				var pairs = {};

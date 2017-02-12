@@ -62,25 +62,29 @@
 					var currentStory = data.val();
 					document.getElementById("story").innerHTML = currentStory;
 					speak(currentStory);
+					setTimeout(function() {
+						annyang.resume();
+						if(!annyang.isListening()) { annyang.start(); }
+					}, currentStory.length*50);
 				}
 				else if(data.key == "optsfield") {
 					currentOpts = data.val();
-					annyang.resume();
-					if(!annyang.isListening()) { annyang.start(); }
+					//annyang.resume();
+					//if(!annyang.isListening()) { annyang.start(); }
 				}
 			});
 		};
 		readStory();
 		//annyang.addCallback('end', readStory);
 		annyang.addCallback('result', function(phrases) {
-			if(phrases[0] == 'quit' || phrases[0] == 'exit') {
-				annyang.abort();
-				window.location="../index.html";
-			}
 			//var options = CYOA_DB({page:currentPage}).select("option")[0].split("/");
 			var foundMatch = false;
 			var optPairs = currentOpts.split("/");
 			for(phrase=0; phrase<phrases.length; phrase++) {
+				if(phrases[i] == 'quit') {
+					annyang.abort();
+					window.location = "../index.html";
+				}
 				for(i=0; i<optPairs.length; i++) {
 					//console.log("Comparing '" + phrases[phrase] + "' to '" + options[i] + "'...");
 					var pair = optPairs[i].split(":");

@@ -7,7 +7,7 @@
 	};
 	button.adventure {
 		text-align:center;
-		margins:auto;
+		margin: 10px 10px 10px 10px;
 		border-style:solid;
 		border-width:5px;
 	};
@@ -28,7 +28,7 @@
 	$(document).ready(function() {
 		var index=0;
 		database.ref("storyboards/").orderByKey().on("child_added", function(data) {
-			$("#adventures").append("<button class=\"adventure\">" + data.key + "</button><br>");
+			$("#adventures").append("<button class=\"adventure\"  style=\"text-align:center; margin:3px auto 3px auto; border-style:solid; border-width:5px;\">" + data.key + "</button><br>");
 		});
 		$(document).on('click', '.adventure', function() {
 			window.location = "../play.html?key=" + $(this).text();
