@@ -1,0 +1,66 @@
+<html>
+<body>
+<div id="audio"></div>
+<style>
+	div.story {
+		margin: auto;
+		//margin: 2px 10px 2px 10px;
+		max-width: 100px;
+		text-align: center;
+		border-style: solid;
+		border-width: 2px;
+		border-radius: 10px;
+		background-color: lightgray;
+	}
+</style>
+<div class="story", id="story">
+	<div class="options"></div>
+</div>	
+<script src="scripts/taffy-min.js"></script>
+<script src="scripts/speakClient.js"></script>
+<script src="scripts/annyang.min.js"></script>
+<script>
+	var CYOA_DB = TAFFY([
+		{ "page":0, "story":"You are lost in the woods. Would you like to go left down a path, or go right down another path?", "option":"left/right", "go":"3/1" },
+		{ "page":1, "story":"You are lost in the woods. Would you like to go left off the path, or go down a nearby hole?", "option":"left/down/hole", "go":"0/2/2" },
+		{ "page":2, "story":"You are stuck in a hole. Would you like to climb out, or would you like to cry me a river?", "option":"climb/up/out/cry/river", "go":"1/1/1/4/4" },
+		{ "page":3, "story":"You are lost in the woods. Would you like to go forward, or would you like to go backward?", "option":"forward/backward", "go":"1/0" },
+		{ "page":4, "story":"You drown to death in the hole you just filled with tears. Would you like to retry, or quit?", "option":"retry", "go":"1" },
+	]);
+	var currentPage = 0;
+	var currentStory;
+	var readStory = function() {
+		currentStory = CYOA_DB({page:currentPage}).select("story")[0];
+		document.getElementById("story").innerHTML = currentStory;
+		speak(currentStory);
+	};
+	readStory();
+	//annyang.addCallback('end', readStory);
+	annyang.addCallback('result', function(phrases) {
+		if(phrases[0] == 'quit') { annyang.abort(); return; }
+		var options = CYOA_DB({page:currentPage}).select("option")[0].split("/");
+		var foundMatch = false;
+		for(phrase=0; phrase<phrases.length; phrase++) {
+			for(i=0; i<options.length; i++) {
+				console.log("Comparing '" + phrases[phrase] + "' to '" + options[i] + "'...");
+				if(phrases[phrase].search(options[i]) >= 0) {
+					foundMatch = true;
+					var goOpts = CYOA_DB({page:currentPage}).select("go")[0];
+					nextPage=(goOpts.split("/"))[i];
+					currentPage=parseInt(nextPage);
+					readStory();
+					//speak("An option has been matched");
+					break;
+				}
+			}
+			if(foundMatch) { break; }
+		}
+		if(!foundMatch) { speak("Could you repeat that?"); }
+		//document.getElementByClass("options")
+	});	
+	//annyang.addCommands(commands);
+	annyang.start();
+</script>
+</body>
+</head>
+</html>
