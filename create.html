@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<input id="advtitle" type="text" value="The title of this adventure"></input>
+	<br>
+	<u>Page 0</u>
+	<br>
+	<div id="pg0" class="page" style="display:inline-block;";>
+		<textarea rows="4" cols="25" class="storyfield" placeholder="This page's story goes here."></textarea>
+		<textarea rows="4" cols="15" class="optsfield" placeholder="Paths for the player, separated by / (ex:'left/right')."></textarea> 
+		<button id="plus">+</button>
+	</div>
+	<br>
+	<button id="submit">Submit!</button>
+
+</body>
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+<script src="scripts/jquery-3.1.1.min.js"></script>
+<script>
+	// Initialize Firebase
+	var config = {
+		apiKey: "AIzaSyBmc07CCwgFD8yE-JHHBz5Ve7RTxDMftE0",
+		authDomain: "annyangcyoa.firebaseapp.com",
+		databaseURL: "https://annyangcyoa.firebaseio.com",
+		storageBucket: "annyangcyoa.appspot.com",
+		messagingSenderId: "468828627566"
+	};
+	firebase.initializeApp(config);
+	var database = firebase.database();
+	var numPages = 0;
+	$(document).ready(function() {
+		$("#plus").click(function() {
+			numPages++;
+			var pgid = "#pg" + (numPages-1);
+			var newPgid = "pg" + (numPages);
+			$(pgid).append("<br><u>Page " + numPages + "</u><br><div id=" + newPgid + " class=\"page\"><textarea rows=\"4\" cols=\"25\" class=\"storyfield\" placeholder=\"Type this page's story here.\"></textarea><textarea rows=\"4\" cols=\"15\" class=\"optsfield\" placeholder=\"Paths for the player, separated by / (ex:'left/right').\"></textarea></div>");
+		});
+		$("#submit").click(function() {
+			$(".storyfield").each(function(index) {
+				console.log(this.value + ":" + $(".optsfield").get(index).value);
+				var stuff = database.ref().child("storyboards");
+				stuff.push().key;
+				var moreStuff = stuff.child($("#advtitle").get(0).value);
+				moreStuff.push().key;
+				var pairs = {};
+				pairs = {};
+				var pageString = "page" + index;
+				moreStuff.child(pageString).push().key;
+				pairs["storyfield"] = this.value;
+				pairs["optsfield"] = $(".optsfield").get(index).value;
+				moreStuff.child(pageString).set(pairs);
+			});
+		});
+	});
+</script>
+	
+
+</html>

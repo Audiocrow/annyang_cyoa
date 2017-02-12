@@ -1,0 +1,29 @@
+<html>
+<head>
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+<script src="scripts/jquery-3.1.1.min.js"></script>
+<script>
+	// Initialize Firebase
+	var config = {
+		apiKey: "AIzaSyBmc07CCwgFD8yE-JHHBz5Ve7RTxDMftE0",
+		authDomain: "annyangcyoa.firebaseapp.com",
+		databaseURL: "https://annyangcyoa.firebaseio.com",
+		storageBucket: "annyangcyoa.appspot.com",
+		messagingSenderId: "468828627566"
+	};
+	firebase.initializeApp(config);
+	var database = firebase.database();
+	$(document).ready(function() {
+		database.ref("storyboards/").orderByKey().on("child_added", function(data) {
+			$("#adventures").append("<p class=\"adventure\">" + data.key + "</p>");
+		});
+	});
+</script>
+</head>
+<body>
+<H1 align=center><u>Choose an adventure to play!</H1>
+<div style="text-align:center;">
+	<div id="adventures"></div>
+</div>
+</body>
+</html>

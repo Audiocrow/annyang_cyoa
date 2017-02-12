@@ -1,0 +1,30 @@
+<html>
+<script>
+	var browse = function() { window.location = "../browse.html"; };
+	var create = function() { window.location = "../create.html"; };
+</script>
+<body>
+<style>
+	body {
+		background-color:black;
+		color:white;
+	}
+	button.choice {
+		margin:10px 5px 10px 5px;
+		max-width:200px;
+		color:darkblue;
+		background-color:lightgray;
+		text-align:center;
+		border-style:solid;
+		padding:3px;
+		border-width:2px;
+		border-radius:5px;
+	}
+</style>
+	<H1 align=center>Welcome to Anny Adventures!</H1>
+	<div style="text-align:center;">
+		<button class="choice" onClick=browse()>Browse</button>
+		<button class="choice" onClick=create()>Create</button>
+	</div>
+</body>
+</html>
